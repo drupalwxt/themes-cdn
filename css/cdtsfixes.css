@@ -179,6 +179,20 @@ background-color: #335075;
 	cursor: auto;
 }
 
+/* Fix contextual link color in header region */
+#app-brand .contextual.open button,
+#app-brand .contextual button:hover {
+	background-position: center center !important;
+	background-repeat: no-repeat !important;
+	background-color: #fff !important;
+}
+
+#app-brand ul.contextual-links a {
+	color: #333;
+	text-decoration: none;
+	padding: 0.4em 0.6em;
+}
+
 /* Fixing the position of the language link and search bar for medium screens*/
 @media only screen and (min-width:992px) and (max-width:1199px){
 	.lang-no-search{
