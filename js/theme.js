@@ -447,7 +447,7 @@ var $document = wb.doc,
 			actions = wb.getData( $elm, componentName );
 
 			if ( actions ) {
-				if ( !$.isArray( actions ) ) {
+				if ( !Array.isArray( actions ?? null) ) {
 					actions = [ actions ];
 				}
 				i_len = actions.length;
@@ -494,7 +494,7 @@ var $document = wb.doc,
 			return;
 		}
 
-		if ( !$.isArray( ops ) ) {
+		if ( !Array.isArray( ops ?? null ) ) {
 			ops = [ ops ];
 		}
 
@@ -711,7 +711,7 @@ var $document = wb.doc,
 			defaultValue;
 
 
-		if ( !$.isArray( actions ) ) {
+		if ( !Array.isArray( actions ?? null ) ) {
 			actions = [ actions ];
 		} else {
 			actions = $.extend( [], actions );
@@ -766,7 +766,7 @@ var $document = wb.doc,
 					ops = [ patchDefault ];
 					i_cache.cumulative = true;
 				}
-				if ( !$.isArray( ops ) ) {
+				if ( !Array.isArray( ops ?? null ) ) {
 					ops = [ ops ];
 				}
 				ops = patchFixArray( ops, i_cache.qval, basePntr );
@@ -865,7 +865,7 @@ $document.on( "do." + actionEvent, function( event ) {
 	// Filter out any events triggered by descendants
 	if ( ( elm === event.target || event.currentTarget === event.target ) && elm.className.indexOf( componentName ) === -1 ) {
 
-		if ( !$.isArray( actions ) ) {
+		if ( !Array.isArray( actions ?? null ) ) {
 			actions = [ actions ];
 		}
 
@@ -1242,7 +1242,9 @@ var componentName = "wb-chtwzrd",
 
 		// If inline, do not trap user with keyboard
 		if ( isInline ) {
-			$( selector + "-link" ).click();
+			const $el = $(selector + "-link");
+			$el.trigger("click");
+			$el.get(0)?.click();
 		} else {
 
 			// Listen for and trap the keyboard
@@ -1903,7 +1905,7 @@ var componentName = "wb-data-json",
 
 			if ( jsondata && jsondata.url ) {
 				lstCall.push( jsondata );
-			} else if ( jsondata && $.isArray( jsondata ) ) {
+			} else if ( jsondata && Array.isArray( jsondata ?? null ) ) {
 				i_len = jsondata.length;
 				for ( i = 0; i !== i_len; i += 1 ) {
 					lstCall.push( jsondata[ i ] );
@@ -2036,12 +2038,12 @@ var componentName = "wb-data-json",
 			dataTable,
 			template = settings.source ? document.querySelector( settings.source ) : elm.querySelector( "template" );
 
-		if ( !$.isArray( content ) ) {
+		if ( !Array.isArray( content ?? null ) ) {
 			if ( typeof content !== "object" ) {
 				content = [ content ];
 			} else {
 				content = $.map( content, function( val, index ) {
-					if ( typeof val === "object" && !$.isArray( val ) ) {
+					if ( typeof val === "object" && !Array.isArray( val ?? null ) ) {
 						if ( !val[ "@id" ] ) {
 							val[ "@id" ] = index;
 						}
@@ -2057,7 +2059,7 @@ var componentName = "wb-data-json",
 		}
 		i_len = content.length;
 
-		if ( !$.isArray( mapping ) ) {
+		if ( !Array.isArray( mapping ?? null ) ) {
 			mapping = [ mapping ];
 		}
 		mapping_len = mapping.length;
@@ -2149,7 +2151,7 @@ var componentName = "wb-data-json",
 					}
 
 					// Set the value to the node
-					if ( $.isArray( cached_value ) ) {
+					if ( Array.isArray( cached_value ?? null ) ) {
 						applyTemplate( cached_node, j_cache, cached_value );
 					} else if ( j_cache.isHTML ) {
 						cached_node.innerHTML = cached_value;
@@ -2219,8 +2221,8 @@ var componentName = "wb-data-json",
 				return b === null;
 			}
 			var i, l;
-			if ( $.isArray( a ) ) {
-				if (  $.isArray( b ) || a.length !== b.length ) {
+			if ( Array.isArray( a ?? null ) ) {
+				if (  Array.isArray( b ?? null ) || a.length !== b.length ) {
 					return false;
 				}
 				for ( i = 0, l = a.length; i < l; i++ ) {
@@ -2247,7 +2249,7 @@ var componentName = "wb-data-json",
 	},
 	_objectKeys = function( obj ) {
 		var keys;
-		if ( $.isArray( obj ) ) {
+		if ( Array.isArray( obj ?? null ) ) {
 			keys = new Array( obj.length );
 			for ( var k = 0; k < keys.length; k++ ) {
 				keys[ k ] = "" + k;
@@ -2501,7 +2503,7 @@ var componentName = "wb-fieldflow",
 			}
 			config = $.extend( {}, defaults, wbDataElm );
 
-			if ( config.defaultIfNone && !$.isArray( config.defaultIfNone ) ) {
+			if ( config.defaultIfNone && !Array.isArray( config.defaultIfNone ) ) {
 				config.defaultIfNone = [ config.defaultIfNone ];
 			}
 
@@ -2517,10 +2519,13 @@ var componentName = "wb-fieldflow",
 				};
 			}
 
-			// Transform the list into a select, use the first paragrap content for the label, and extract for i18n the name of the button action.
+			// Transform the list into a select, use the first paragraph content for the label, and extract for i18n the name of the button action.
 			var bodyID = wb.getId(),
 				stdOut,
-				formElm, $form;
+				formElm,
+				$form,
+				btnStyle = config.btnStyle && [ "default", "primary", "success", "info", "warning", "danger", "link" ].indexOf( config.btnStyle ) >= 0 ? config.btnStyle : "default",
+				showLabel = !!config.showLabel;
 
 			if ( config.noForm ) {
 				stdOut = "<div class='mrgn-tp-md'><div id='" + bodyID + "'></div></div>";
@@ -2532,11 +2537,11 @@ var componentName = "wb-fieldflow",
 				}
 				$( formElm.parentElement ).addClass( formComponent );
 			} else if ( config.inline && !config.renderas ) {
-				stdOut = "<div class='wb-frmvld " + formComponent + "'><form><div class='input-group'><div id='" + bodyID + "'>";
-				stdOut = stdOut + "</div><span class='input-group-btn'><input type=\"submit\" value=\"" + i18n.btn + "\" class=\"btn btn-default mrgn-bttm-md\" /></span></div> </form></div>";
+				stdOut = "<div class='wb-frmvld mrgn-bttm-md " + formComponent + "'><form><div class='input-group'><div id='" + bodyID + "'>";
+				stdOut = stdOut + "</div><span class='input-group-btn" + ( showLabel ? " align-bottom" : "" ) + "'><input type=\"submit\" value=\"" + wb.escapeAttribute( i18n.btn ) + "\" class=\"btn btn-" + btnStyle + "\" /></span></div> </form></div>";
 			} else {
 				stdOut = "<div class='wb-frmvld " + formComponent + "'><form><div id='" + bodyID + "'>";
-				stdOut = stdOut + "</div><input type=\"submit\" value=\"" + i18n.btn + "\" class=\"btn btn-primary mrgn-bttm-md\" /> </form></div>";
+				stdOut = stdOut + "</div><input type=\"submit\" value=\"" + wb.escapeAttribute( i18n.btn ) + "\" class=\"btn btn-primary mrgn-bttm-md\" /> </form></div>";
 			}
 			$elm.addClass( "hidden" );
 			stdOut = $( stdOut );
@@ -2612,7 +2617,7 @@ var componentName = "wb-fieldflow",
 		if ( fieldName ) {
 			data.provEvt.setAttribute( "name", fieldName );
 		}
-		if ( fieldValue ) {
+		if ( typeof fieldValue === "string" ) {
 			$selectElm.val( fieldValue );
 		}
 
@@ -2928,7 +2933,8 @@ var componentName = "wb-fieldflow",
 				noreqlabel: data.noreqlabel,
 				items: $items,
 				inline: data.inline,
-				gcChckbxrdio: data.gcChckbxrdio
+				gcChckbxrdio: data.gcChckbxrdio,
+				showLabel: data.showLabel
 			} );
 		}
 	},
@@ -2947,7 +2953,7 @@ var componentName = "wb-fieldflow",
 			i18n = $elm.data( configData ).i18n,
 			autoID = wb.getId(),
 			labelPrefix = "<label for='" + autoID + "'",
-			labelInvisible = data.inline ? " wb-inv" : "",
+			labelInvisible = ( data.inline && !data.showLabel ) ? " wb-inv" : "",
 			labelSuffix = "</span>",
 			$out, $tmpLabel,
 			selectOut, $selectOut,
@@ -3001,7 +3007,7 @@ var componentName = "wb-fieldflow",
 			} else {
 
 				// We have a group of sub-items, the cur_itm are a group
-				selectOut += "<optgroup label='" + cur_itm.label + "'>";
+				selectOut += "<optgroup label='" + wb.escapeAttribute( stripHtml( cur_itm.label ) ) + "'>";
 				j_len = cur_itm.group.length;
 				for ( j = 0; j !== j_len; j += 1 ) {
 					selectOut += buildSelectOption( cur_itm.group[ j ] );
@@ -3144,7 +3150,7 @@ var componentName = "wb-fieldflow",
 		var arrItems = $items.get(),
 			i, i_len = arrItems.length, itmCached,
 			itmLabel, itmValue, grpItem,
-			j, j_len, childNodes, firstNode, childNode, $childNode, childNodeID,
+			j, j_len, childNodes, firstNode, firstElmNode, childNode, $childNode, childNodeID,
 			parsedItms = [],
 			actions;
 
@@ -3156,19 +3162,20 @@ var componentName = "wb-fieldflow",
 			itmLabel = "";
 
 			firstNode = itmCached.firstChild;
+			firstElmNode = itmCached.firstElementChild;
 			childNodes = itmCached.childNodes;
 			j_len = childNodes.length;
 
 			if ( !firstNode ) {
-				throw "You have a markup error, There may be an empyt <li> elements in your list.";
+				throw "You have a markup error, There may be an empty <li> elements in your list.";
 			}
 
 			actions = [];
 
-			// Is firstNode an anchor?
-			if ( firstNode.nodeName === "A" ) {
-				itmValue = firstNode.getAttribute( "href" );
-				itmLabel = $( firstNode ).html();
+			// Is firstElmNode an anchor?
+			if ( firstElmNode && firstElmNode.nodeName === "A" ) {
+				itmValue = firstElmNode.getAttribute( "href" );
+				itmLabel = $( firstElmNode ).html().trim();
 				j_len = 1; // Force following elements to be ignored
 
 				actions.push( {
@@ -3211,7 +3218,12 @@ var componentName = "wb-fieldflow",
 			}
 
 			if ( !itmLabel ) {
-				itmLabel = firstNode.nodeValue;
+				const $itmCachedClean = $( itmCached ).clone();
+
+				// Remove nested structure in grouping (ul) and nesting (.wb-fieldflow-sub) scenarios
+				$itmCachedClean.children( "ul, .wb-fieldflow-sub" ).remove();
+
+				itmLabel = $itmCachedClean.html().trim();
 			}
 
 			// Set an id on the element
@@ -3230,8 +3242,8 @@ var componentName = "wb-fieldflow",
 		return parsedItms;
 	},
 	buildSelectOption = function( data ) {
-		var label = data.label,
-			out = "<option value='" + label + "'";
+		var label = stripHtml( data.label ),
+			out = "<option value='" + wb.escapeAttribute( label ) + "'";
 
 		out += buildDataAttribute( data );
 
@@ -3258,7 +3270,7 @@ var componentName = "wb-fieldflow",
 		var fieldID = wb.getId(),
 			labelTxt = data.label,
 			label = "<label for='" + fieldID + "'>",
-			input = "<input id='" + fieldID + "' type='" + inputType + "' name='" + fieldName + "' value='" + labelTxt + "'" + buildDataAttribute( data ),
+			input = "<input id='" + fieldID + "' type='" + inputType + "' name='" + fieldName + "' value='" + wb.escapeAttribute( stripHtml( labelTxt ) ) + "'" + buildDataAttribute( data ),
 			tag = !isInline && isGcChckbxrdio ? "li" : "div",
 			out = "<" + tag + " class='" + inputType;
 
@@ -3282,6 +3294,12 @@ var componentName = "wb-fieldflow",
 		out += "</label>" + "</" + tag + ">";
 
 		return out;
+	},
+
+	// Strip HTML markup from strings
+	// Created by Chris Coyier via CSS-Tricks (https://css-tricks.com/snippets/javascript/strip-html-tags-in-javascript/)
+	stripHtml = function( str ) {
+		return str.replace( /(<([^>]+)>)/gi, "" );
 	};
 
 $document.on( resetActionEvent, selector + ", ." + subComponentName, function( event ) {
@@ -3299,7 +3317,7 @@ $document.on( resetActionEvent, selector + ", ." + subComponentName, function( e
 		if ( settings && settings.reset ) {
 			settingsReset = settings.reset;
 
-			if ( $.isArray( settingsReset ) ) {
+			if ( Array.isArray( settingsReset ) ) {
 				resetAction = settingsReset;
 			} else {
 				resetAction.push( settingsReset );
@@ -3321,7 +3339,7 @@ $document.on( resetActionEvent, selector + ", ." + subComponentName, function( e
 	}
 } );
 
-// Load content after the user have choosen an option
+// Load content after the user has chosen an option
 $document.on( "change", selectorForm + " " + crtlSelectSelector, function( event ) {
 
 	var elm = event.currentTarget,
@@ -3383,7 +3401,7 @@ $document.on( "change", selectorForm + " " + crtlSelectSelector, function( event
 	}
 	if ( $optSel.length && $optSel.val() && settings && settings.default ) {
 		cacheAction = settings.default;
-		if ( $.isArray( cacheAction ) ) {
+		if ( Array.isArray( cacheAction ) ) {
 			actions = cacheAction;
 		} else {
 			actions.push( cacheAction );
@@ -3410,17 +3428,17 @@ $document.on( "change", selectorForm + " " + crtlSelectSelector, function( event
 
 			if ( bindTo ) {
 
-				// Retreive action set on the binded element
+				// Retrieve action set on the binded element
 				bindToElm = document.getElementById( bindTo );
 				actionAttr = bindToElm.getAttribute( "data-" + componentName );
-				if ( actionAttr ) {
+				if ( typeof actionAttr === "string" ) {
 					if ( actionAttr.startsWith( "{" ) || actionAttr.startsWith( "[" ) ) {
 						try {
 							cacheAction = JSON.parse( actionAttr );
 						} catch ( error ) {
 							$.error( "Bad JSON object " + actionAttr );
 						}
-						if ( !$.isArray( cacheAction ) ) {
+						if ( !Array.isArray( cacheAction ) ) {
 							cacheAction = [ cacheAction ];
 						}
 					} else {
@@ -3475,14 +3493,14 @@ $document.on( "change", selectorForm + " " + crtlSelectSelector, function( event
 } );
 
 
-// Load content after the user have choosen an option
+// Load content after the user has chosen an option
 $document.on( "submit", selectorForm + " form", function( event ) {
 
 	var elm = event.currentTarget,
 		$elm = $( elm ),
 		wbFieldFlowRegistered = $elm.data( registerJQData ),
 		wbRegisteredHidden = $elm.data( registerHdnFld ) || [],
-		$hdnField,
+		hdnField,
 		i, i_len = wbFieldFlowRegistered ? wbFieldFlowRegistered.length : 0,
 		$wbFieldFlow, fieldOrigin,
 		lstFieldFlowPostEvent = [],
@@ -3501,7 +3519,7 @@ $document.on( "submit", selectorForm + " form", function( event ) {
 		$wbFieldFlow.trigger( cleanEvent );
 	}
 
-	// For each wb-fieldflow component, execute submiting task.
+	// For each wb-fieldflow component, execute submitting task.
 	for ( i = 0; i !== i_len; i += 1 ) {
 		$wbFieldFlow = $( "#" + wbFieldFlowRegistered[ i ] );
 		componentRegistered = $wbFieldFlow.data( registerJQData );
@@ -3542,7 +3560,7 @@ $document.on( "submit", selectorForm + " form", function( event ) {
 		}
 	}
 
-	// Before to submit, remove jj-down accessesory control
+	// Before to submit, remove jj-down accessory control
 	if ( !preventSubmit ) {
 		$elm.find( basenameInputSelector ).removeAttr( "name" );
 
@@ -3577,9 +3595,14 @@ $document.on( "submit", selectorForm + " form", function( event ) {
 						cacheName = items[ 0 ];
 						cacheParam = items[ 1 ];
 					}
-					$hdnField = $( "<input type='hidden' name='" + cacheName + "' value='" + cacheParam + "' />" );
-					$elm.append( $hdnField );
-					wbRegisteredHidden.push( $hdnField.get( 0 ) );
+
+					hdnField = document.createElement( "input" );
+					hdnField.type = "hidden";
+					hdnField.name = cacheName;
+					hdnField.value = wb.escapeAttribute( cacheParam );
+
+					$elm.append( hdnField );
+					wbRegisteredHidden.push( hdnField );
 				}
 				$elm.data( registerHdnFld, wbRegisteredHidden );
 			}
@@ -3621,7 +3644,7 @@ $document.on( "keyup", selectorForm + " select", function( Ev ) {
 	// Add the fix for the on change event - https://bugzilla.mozilla.org/show_bug.cgi?id=126379
 	if ( navigator.userAgent.indexOf( "Gecko" ) !== -1 ) {
 
-		// prevent tab, alt, ctrl keys from fireing the event
+		// prevent tab, alt, ctrl keys from firing the event
 		if ( Ev.keyCode && ( Ev.keyCode === 1 || Ev.keyCode === 9 || Ev.keyCode === 16 || Ev.altKey || Ev.ctrlKey ) ) {
 			return true;
 		}
@@ -3635,115 +3658,115 @@ $document.on( fieldflowActionsEvents, selector, function( event, data ) {
 	var eventType = event.type;
 
 	switch ( event.namespace ) {
-	case drawEvent:
-		switch ( eventType ) {
-		case componentName:
-			drwFieldflow( event, data );
+		case drawEvent:
+			switch ( eventType ) {
+				case componentName:
+					drwFieldflow( event, data );
+					break;
+				case "tblfilter":
+					drwTblFilter( event, data );
+					break;
+			}
 			break;
-		case "tblfilter":
-			drwTblFilter( event, data );
-			break;
-		}
-		break;
 
-	case createCtrlEvent:
-		switch ( eventType ) {
-		case "select":
-			ctrlSelect( event, data );
+		case createCtrlEvent:
+			switch ( eventType ) {
+				case "select":
+					ctrlSelect( event, data );
+					break;
+				case "checkbox":
+					data.typeRadCheck = "checkbox";
+					ctrlChkbxRad( event, data );
+					break;
+				case "radio":
+					data.typeRadCheck = "radio";
+					ctrlChkbxRad( event, data );
+					break;
+			}
 			break;
-		case "checkbox":
-			data.typeRadCheck = "checkbox";
-			ctrlChkbxRad( event, data );
-			break;
-		case "radio":
-			data.typeRadCheck = "radio";
-			ctrlChkbxRad( event, data );
-			break;
-		}
-		break;
 
-	case actionEvent:
-		switch ( eventType ) {
-		case "append":
-			actAppend( event, data );
-			break;
-		case "redir":
-			pushData( $( data.provEvt ), submitJQData, data, true );
-			break;
-		case "ajax":
-			actAjax( event, data );
-			break;
-		case "tblfilter":
-			actTblFilter( event, data );
-			break;
-		case "toggle":
-			if ( data.live ) {
-				subToggle( event, data );
-			} else {
-				data.preventSubmit = true;
-				pushData( $( data.provEvt ), submitJQData, data );
+		case actionEvent:
+			switch ( eventType ) {
+				case "append":
+					actAppend( event, data );
+					break;
+				case "redir":
+					pushData( $( data.provEvt ), submitJQData, data, true );
+					break;
+				case "ajax":
+					actAjax( event, data );
+					break;
+				case "tblfilter":
+					actTblFilter( event, data );
+					break;
+				case "toggle":
+					if ( data.live ) {
+						subToggle( event, data );
+					} else {
+						data.preventSubmit = true;
+						pushData( $( data.provEvt ), submitJQData, data );
+					}
+					break;
+				case "addClass":
+					if ( !data.source || !data.class ) {
+						return;
+					}
+					if ( data.live ) {
+						$( data.source ).addClass( data.class );
+					} else {
+						data.preventSubmit = true;
+						pushData( $( data.provEvt ), submitJQData, data );
+					}
+					break;
+				case "removeClass":
+					if ( !data.source || !data.class ) {
+						return;
+					}
+					if ( data.live ) {
+						$( data.source ).removeClass( data.class );
+					} else {
+						data.preventSubmit = true;
+						pushData( $( data.provEvt ), submitJQData, data );
+					}
+					break;
+				case "query":
+					actQuery( event, data );
+					break;
 			}
 			break;
-		case "addClass":
-			if ( !data.source || !data.class ) {
-				return;
-			}
-			if ( data.live ) {
-				$( data.source ).addClass( data.class );
-			} else {
-				data.preventSubmit = true;
-				pushData( $( data.provEvt ), submitJQData, data );
-			}
-			break;
-		case "removeClass":
-			if ( !data.source || !data.class ) {
-				return;
-			}
-			if ( data.live ) {
-				$( data.source ).removeClass( data.class );
-			} else {
-				data.preventSubmit = true;
-				pushData( $( data.provEvt ), submitJQData, data );
-			}
-			break;
-		case "query":
-			actQuery( event, data );
-			break;
-		}
-		break;
 
-	case submitEvent:
-		switch ( eventType ) {
-		case "redir":
-			subRedir( event, data );
+		case submitEvent:
+			switch ( eventType ) {
+				case "redir":
+					subRedir( event, data );
+					break;
+				case "ajax":
+					subAjax( event, data );
+					break;
+				case "toggle":
+					subToggle( event, data );
+					break;
+				case "addClass":
+					$( data.source ).addClass( data.class );
+					break;
+				case "removeClass":
+					$( data.source ).removeClass( data.class );
+					break;
+				case "query":
+					actQuery( event, data );
+					break;
+			}
 			break;
-		case "ajax":
-			subAjax( event, data );
-			break;
-		case "toggle":
-			subToggle( event, data );
-			break;
-		case "addClass":
-			$( data.source ).addClass( data.class );
-			break;
-		case "removeClass":
-			$( data.source ).removeClass( data.class );
-			break;
-		case "query":
-			actQuery( event, data );
-			break;
-		}
-		break;
 	}
 } );
 
 // Bind the init event of the plugin
 $document.on( "timerpoke.wb " + initEvent, selector, function( event ) {
 	switch ( event.type ) {
-	case "timerpoke":
-	case "wb-init":
-		init( event );
-		break;
+		case "timerpoke":
+		case "wb-init":
+			init( event );
+			break;
 	}
 
 	/*
@@ -3797,14 +3820,14 @@ var componentName = "wb-jsonmanager",
 						filter = this.filter || [ ],
 						filternot = this.filternot || [ ];
 
-					if ( !$.isArray( filter ) ) {
+					if ( !Array.isArray( filter ?? null ) ) {
 						filter = [ filter ];
 					}
-					if ( !$.isArray( filternot ) ) {
+					if ( !Array.isArray( filternot ?? null ) ) {
 						filternot = [ filternot ];
 					}
 
-					if ( ( filter.length || filternot.length ) && $.isArray( countme ) ) {
+					if ( ( filter.length || filternot.length ) && Array.isArray( countme ?? null ) ) {
 
 						// Iterate in obj[key] / item and check if is true for the given path is any.
 						i_len = countme.length;
@@ -3814,7 +3837,7 @@ var componentName = "wb-jsonmanager",
 								len = len + 1;
 							}
 						}
-					} else if ( $.isArray( countme ) ) {
+					} else if ( Array.isArray( countme ?? null ) ) {
 						len = countme.length;
 					}
 					jsonpatch.apply( tree, [
@@ -3826,7 +3849,7 @@ var componentName = "wb-jsonmanager",
 				name: "wb-first",
 				fn: function( obj, key, tree ) {
 					var currObj = obj[ key ];
-					if ( !$.isArray( currObj ) || currObj.length === 0 ) {
+					if ( !Array.isArray( currObj ?? null ) || currObj.length === 0 ) {
 						return;
 					}
 
@@ -3839,7 +3862,7 @@ var componentName = "wb-jsonmanager",
 				name: "wb-last",
 				fn: function( obj, key, tree ) {
 					var currObj = obj[ key ];
-					if ( !$.isArray( currObj ) || currObj.length === 0 ) {
+					if ( !Array.isArray( currObj ?? null ) || currObj.length === 0 ) {
 						return;
 					}
 
@@ -4098,8 +4121,8 @@ var componentName = "wb-jsonmanager",
 				return b === null;
 			}
 			var i, l;
-			if ( $.isArray( a ) ) {
-				if (  $.isArray( b ) || a.length !== b.length ) {
+			if ( Array.isArray( a ?? null ) ) {
+				if (  Array.isArray( b ?? null ) || a.length !== b.length ) {
 					return false;
 				}
 				for ( i = 0, l = a.length; i < l; i++ ) {
@@ -4126,7 +4149,7 @@ var componentName = "wb-jsonmanager",
 	},
 	_objectKeys = function( obj ) {
 		var keys;
-		if ( $.isArray( obj ) ) {
+		if ( Array.isArray( obj ?? null ) ) {
 			keys = new Array( obj.length );
 			for ( var k = 0; k < keys.length; k++ ) {
 				keys[ k ] = "" + k;
@@ -4150,15 +4173,15 @@ var componentName = "wb-jsonmanager",
 		var filterObj,
 			i, i_len;
 
-		if ( !$.isArray( filterTrueness ) ) {
+		if ( !Array.isArray( filterTrueness ?? null ) ) {
 			filterTrueness = [ filterTrueness ];
 		}
-		if ( !$.isArray( filterFaslseness ) ) {
+		if ( !Array.isArray( filterFaslseness ?? null ) ) {
 			filterFaslseness = [ filterFaslseness ];
 		}
 
 		filterObj = jsonpointer.get( JSONsource, filterPath );
-		if ( $.isArray( filterObj ) ) {
+		if ( Array.isArray( filterObj ?? null ) ) {
 			i_len = filterObj.length - 1;
 			for ( i = i_len; i !== -1; i -= 1 ) {
 				if ( !filterPassJSON( filterObj[ i ], filterTrueness, filterFaslseness ) ) {
@@ -4216,7 +4239,7 @@ $document.on( "json-fetched.wb", selector, function( event ) {
 		settings,
 		dsName,
 		JSONresponse = event.fetch.response,
-		isArrayResponse = $.isArray( JSONresponse ),
+		isArrayResponse = Array.isArray( JSONresponse ?? null ),
 		resultSet,
 		i, i_len, i_cache, backlog, selector,
 		patches, filterTrueness, filterFaslseness, filterPath;
@@ -4231,7 +4254,7 @@ $document.on( "json-fetched.wb", selector, function( event ) {
 		filterTrueness = settings.filter || [];
 		filterFaslseness = settings.filternot || [];
 
-		if ( !$.isArray( patches ) ) {
+		if ( !Array.isArray( patches ?? null ) ) {
 			patches = [ patches ];
 		}
 
@@ -4322,7 +4345,7 @@ $document.on( patchesEvent, selector, function( event ) {
 		delayedLst,
 		i, i_len, i_cache, pntrSelector;
 
-	if ( elm === event.currentTarget && $.isArray( patches ) ) {
+	if ( elm === event.currentTarget && Array.isArray( patches ?? null ) ) {
 		settings = wb.getData( $elm, componentName );
 
 		if ( !settings ) {
@@ -4342,7 +4365,7 @@ $document.on( patchesEvent, selector, function( event ) {
 
 		dsJSON = datasetCache[ dsName ];
 		if ( !isCumulative ) {
-			dsJSON = $.extend( true, ( $.isArray( dsJSON ) ? [] : {} ), dsJSON );
+			dsJSON = $.extend( true, ( Array.isArray( dsJSON ?? null ) ? [] : {} ), dsJSON );
 		}
 
 		// Apply a filtering
@@ -4464,7 +4487,7 @@ $document.on( "op.submit.wb-fieldflow", ".wb-fieldflow", function( event, data )
 		return true;
 	}
 
-	if ( !$.isArray( op ) ) {
+	if ( !Array.isArray( op ?? null) ) {
 		ops = [];
 		ops.push( op );
 	} else {
