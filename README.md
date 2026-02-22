@@ -1,8 +1,14 @@
-The theme.js assets are based on the assets from v4.43.1
 
-fieldflow js was replaced with the new fieldflow js from gcweb 18.3 [found in the gcweb](https://github.com/wet-boew/gcweb.git) (fieldflow.js) See install instructions for gcweb
+These assets come from https://github.com/wet-boew/cdts-sgdc
 
-For the rest of the code in theme.js , manually replaced deprecated jQuery3 calls with jQuery4 pure js , example $.isArray() .
+Instructions to compile:
 
-#Instructions how to compile the theme.js into theme.min.js
-`npx terser js/theme.js --compress -o js/theme.min.js`
+```
+git clone https://github.com/wet-boew/cdts-sgdc.git;
+git checkout v5-intranet;
+npm install;
+npm run build; 
+```
+
+The latest changes bring in jQuery 4 compatibility.
+
